@@ -68,8 +68,8 @@ output/release/FSClicker-v<version>-windows-x64.zip
 output/release/FSClicker-v<version>-windows-x64.zip.sha256
 ```
 
-By default, the package excludes Qt translations, compiler runtime DLLs, and the software OpenGL fallback library. Use
-this when you want the OpenGL fallback:
+By default, the package includes the required MinGW/compiler runtime DLLs, and excludes Qt translations and the
+software OpenGL fallback library. Use this when you want the OpenGL fallback:
 
 ```powershell
 python scripts/package_app.py --keep-opengl-sw

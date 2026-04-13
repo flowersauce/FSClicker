@@ -68,7 +68,7 @@ output/release/FSClicker-v<version>-windows-x64.zip
 output/release/FSClicker-v<version>-windows-x64.zip.sha256
 ```
 
-默认发布包不包含 Qt 翻译文件、编译器运行时 DLL 和软件 OpenGL 兜底库。需要兼容性兜底时可以使用：
+默认发布包会包含必需的 MinGW/编译器运行时 DLL，不包含 Qt 翻译文件和软件 OpenGL 兜底库。需要 OpenGL 兼容性兜底时可以使用：
 
 ```powershell
 python scripts/package_app.py --keep-opengl-sw

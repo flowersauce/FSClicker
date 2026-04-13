@@ -64,8 +64,8 @@ python scripts/package_app.py --keep-opengl-sw
 python scripts/package_app.py --keep-translations
 ```
 
-默认发布包会排除 Qt 翻译文件、编译器运行时 DLL 和软件 OpenGL 兜底库。`--keep-opengl-sw` 可用于保留 `opengl32sw.dll`
-，提升少数显卡驱动异常环境下的兼容性。
+默认发布包会包含必需的 MinGW/编译器运行时 DLL，排除 Qt 翻译文件和软件 OpenGL 兜底库。`--keep-opengl-sw` 可用于保留
+`opengl32sw.dll`，提升少数显卡驱动异常环境下的兼容性。
 
 ## 静态 Qt
 

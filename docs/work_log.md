@@ -49,7 +49,7 @@
 python scripts/package_app.py
 ```
 
-- 默认发布包排除 Qt 翻译文件、编译器运行时 DLL 和软件 OpenGL 兜底库。
+- 默认发布包包含必需的 MinGW/编译器运行时 DLL，排除 Qt 翻译文件和软件 OpenGL 兜底库。
 - 如需保留软件 OpenGL 兜底库，可使用：
 
 ```powershell

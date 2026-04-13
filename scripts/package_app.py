@@ -19,7 +19,7 @@ from pathlib import Path
 
 APP_NAME = "FSClicker"
 WINDOWS_X64_SUFFIX = "windows-x64"
-RUNTIME_DLLS = ("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll")
+RUNTIME_DLLS = ("libstdc++-6.dll", "libgcc_s_seh-1.dll", "libwinpthread-1.dll", "libatomic-1.dll")
 
 
 def project_root() -> Path:
@@ -35,7 +35,9 @@ def parse_args():
     parser.add_argument("--mingw-bin", default=os.environ.get("MINGW_BIN_PATH"),
                         help="包含 MinGW 运行时 DLL 的 bin 目录。")
     parser.add_argument("--keep-translations", action="store_true", help="保留 Qt 翻译文件。")
-    parser.add_argument("--keep-compiler-runtime", action="store_true", help="允许 windeployqt 复制编译器运行时 DLL。")
+    parser.add_argument("--keep-compiler-runtime", action="store_true",
+                        help="兼容旧参数；现在默认保留编译器运行时 DLL。")
+    parser.add_argument("--no-compiler-runtime", action="store_true", help="不复制编译器运行时 DLL。")
     parser.add_argument("--keep-opengl-sw", action="store_true", help="保留 Qt 软件 OpenGL 兜底库。")
     parser.add_argument("--skip-zip", action="store_true", help="只生成目录，不生成 zip。")
     parser.add_argument("--name-suffix", default=WINDOWS_X64_SUFFIX, help="zip 文件名中的平台后缀。")
@@ -100,6 +102,30 @@ def infer_mingw_bin(cache: dict[str, str], explicit_path: str | None) -> Path | 
     return None
 
 
+def find_on_path(name: str) -> Path | None:
+    found = shutil.which(name)
+    return Path(found) if found else None
+
+
+def infer_objdump(cache: dict[str, str], mingw_bin: Path | None) -> Path | None:
+    candidates: list[Path] = []
+    if mingw_bin:
+        candidates.append(mingw_bin / "objdump.exe")
+
+    compiler = cache.get("CMAKE_CXX_COMPILER")
+    if compiler:
+        candidates.append(Path(compiler).with_name("objdump.exe"))
+
+    path_objdump = find_on_path("objdump")
+    if path_objdump:
+        candidates.append(path_objdump)
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def find_exe(build_dir: Path) -> Path:
     direct_path = build_dir / f"{APP_NAME}.exe"
     if direct_path.exists():
@@ -135,26 +161,65 @@ def find_build_dir(root: Path, explicit_path: str | None) -> Path:
     return max(candidates, key=lambda item: item[0])[1].resolve()
 
 
-def copy_runtime_dlls(cache: dict[str, str], mingw_bin: Path | None, output_dir: Path):
-    if cache.get("FS_CLICKER_STATIC_RUNTIME", "ON").upper() == "ON":
-        print("跳过 MinGW 运行时复制: 当前启用静态运行时。")
-        return
+def imported_dlls(objdump: Path, binary_path: Path) -> set[str]:
+    result = subprocess.run([str(objdump), "-p", str(binary_path)], check=False,
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    if result.returncode != 0:
+        return set()
 
-    if not mingw_bin:
+    dlls: set[str] = set()
+    marker = "DLL Name:"
+    for line in result.stdout.splitlines():
+        if marker in line:
+            dlls.add(line.split(marker, 1)[1].strip())
+    return dlls
+
+
+def discover_missing_imports(package_dir: Path, objdump: Path | None) -> set[str]:
+    if not objdump:
+        print("跳过导入表扫描: 找不到 objdump.exe。")
+        return set()
+
+    binaries = [path for path in package_dir.rglob("*") if path.suffix.lower() in (".exe", ".dll")]
+    present = {path.name.lower() for path in binaries}
+    missing: set[str] = set()
+    for binary in binaries:
+        for dll in imported_dlls(objdump, binary):
+            if dll.lower() not in present:
+                missing.add(dll)
+    return missing
+
+
+def copy_runtime_dlls(search_dirs: list[Path], output_dir: Path, missing_imports: set[str]):
+    if not search_dirs:
         print("跳过 MinGW 运行时复制: 找不到 MinGW bin 目录。")
         return
 
-    for dll in RUNTIME_DLLS:
-        dll_path = mingw_bin / dll
-        if dll_path.exists():
-            shutil.copy2(dll_path, output_dir)
-            print(f"已复制运行时库文件: {dll}")
-        else:
-            print(f"警告: 找不到运行时库文件: {dll_path}")
+    required_dlls = {dll.lower(): dll for dll in RUNTIME_DLLS}
+    for dll in missing_imports:
+        if dll.lower().startswith("lib"):
+            required_dlls[dll.lower()] = dll
+
+    for dll in required_dlls.values():
+        destination = output_dir / dll
+        if destination.exists():
+            continue
+
+        copied = False
+        for search_dir in search_dirs:
+            dll_path = search_dir / dll
+            if dll_path.exists():
+                shutil.copy2(dll_path, destination)
+                print(f"已复制运行时库文件: {dll}")
+                copied = True
+                break
+
+        if not copied and dll.lower() in {runtime.lower() for runtime in RUNTIME_DLLS}:
+            print(f"提示: 当前工具链目录中没有找到可选运行时库文件: {dll}")
 
 
 def deploy_qt(qt_bin: Path | None, qml_dir: Path, exe_path: Path, keep_translations: bool,
-              keep_compiler_runtime: bool, keep_opengl_sw: bool):
+              no_compiler_runtime: bool, keep_opengl_sw: bool):
     if not qt_bin:
         raise RuntimeError("找不到 Qt bin 目录，请传入 --qt-bin 或设置 QT_BIN_PATH。")
 
@@ -165,13 +230,16 @@ def deploy_qt(qt_bin: Path | None, qml_dir: Path, exe_path: Path, keep_translati
     command = [str(windeployqt_path), "--release", "--qmldir", str(qml_dir)]
     if not keep_translations:
         command.append("--no-translations")
-    if not keep_compiler_runtime:
+    if no_compiler_runtime:
         command.append("--no-compiler-runtime")
     if not keep_opengl_sw:
         command.append("--no-opengl-sw")
     command.append(str(exe_path))
     print("部署 Qt:", " ".join(command))
-    subprocess.run(command, check=True)
+
+    env = os.environ.copy()
+    env["PATH"] = str(qt_bin) + os.pathsep + env.get("PATH", "")
+    subprocess.run(command, check=True, env=env)
 
 
 def release_name(version: str, suffix: str) -> str:
@@ -217,6 +285,11 @@ def main():
     exe_path = find_exe(build_dir)
     qt_bin = infer_qt_bin(cache, args.qt_bin)
     mingw_bin = infer_mingw_bin(cache, args.mingw_bin)
+    objdump = infer_objdump(cache, mingw_bin)
+    runtime_search_dirs = []
+    for path in (mingw_bin, qt_bin):
+        if path and path not in runtime_search_dirs:
+            runtime_search_dirs.append(path)
 
     print(f"使用构建目录: {build_dir}")
     print(f"使用可执行文件: {exe_path}")
@@ -226,9 +299,9 @@ def main():
     shutil.copy2(exe_path, packaged_exe_path)
     print(f"已复制可执行文件: {packaged_exe_path}")
 
-    copy_runtime_dlls(cache, mingw_bin, package_dir)
-    deploy_qt(qt_bin, qml_dir, packaged_exe_path, args.keep_translations, args.keep_compiler_runtime,
+    deploy_qt(qt_bin, qml_dir, packaged_exe_path, args.keep_translations, args.no_compiler_runtime,
               args.keep_opengl_sw)
+    copy_runtime_dlls(runtime_search_dirs, package_dir, discover_missing_imports(package_dir, objdump))
 
     if not args.skip_zip:
         output_dir.mkdir(parents=True, exist_ok=True)
