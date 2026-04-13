@@ -58,3 +58,9 @@ compile_commands.json
 
 # Exclude build directory
 build/
+
+# Python
+.venv/
+
+# 打包发行文件
+output/

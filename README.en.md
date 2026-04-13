@@ -1,5 +1,5 @@
 <p align="center">
-  中文 | <a href="README.en.md">English</a>
+  <a href="README.md">中文</a> | English
 </p>
 
 # FSClicker
@@ -12,34 +12,34 @@
   <img alt="License" src="https://img.shields.io/badge/License-MIT-2DA44E?style=flat-square">
 </p>
 
-FSClicker 是一款面向 Windows 的轻量连点器，使用 Qt Quick 编写。
+FSClicker is a lightweight auto clicker for Windows, built with Qt Quick.
 
-## 功能
+## Features
 
-- 鼠标左键、中键、右键连点。
-- 自定义键盘按键和滚轮上/下动作。
-- 连击与长按两种输入行为。
-- 固定坐标点击，可在屏幕上直接捕获坐标。
-- 周期输入，支持 `0% - 20%` 的动态误差。
-- 中文、英文界面。
-- 自动、深色、浅色主题。
-- 关闭程序时保存配置。
+- Repeated left, middle, and right mouse clicks.
+- Custom keyboard key and mouse wheel up/down input.
+- Repeat and hold input modes.
+- Locked-position clicking with screen coordinate capture.
+- Period-based input with `0% - 20%` dynamic jitter.
+- Chinese and English UI.
+- Auto, dark, and light themes.
+- Settings are saved when the app exits.
 
-## 下载
+## Download
 
-在 GitHub Release 下载最新的 Windows 发布包，解压后运行 `FSClicker.exe`。
+Download the latest Windows package from GitHub Releases, extract it, and run `FSClicker.exe`.
 
-## 构建
+## Build
 
-需要：
+Requirements:
 
 - Windows
 - CMake 3.30+
 - Qt 6.11+
 - MinGW
-- Python 3，用于发布打包
+- Python 3 for release packaging
 
-配置示例：
+Configure:
 
 ```powershell
 cmake -S . -B build -G Ninja `
@@ -47,33 +47,34 @@ cmake -S . -B build -G Ninja `
   -DFS_CLICKER_STATIC_RUNTIME=ON
 ```
 
-构建：
+Build:
 
 ```powershell
 cmake --build build --target FSClicker
 ```
 
-## 打包
+## Package
 
-先完成构建，再运行：
+Build the app first, then run:
 
 ```powershell
 python scripts/package_app.py
 ```
 
-脚本会搜索名称包含 `build` 的构建目录，使用其中最新的 `FSClicker.exe`，并生成：
+The script searches build directories whose names contain `build`, uses the newest `FSClicker.exe`, and creates:
 
 ```text
 output/release/FSClicker-v<version>-windows-x64.zip
 output/release/FSClicker-v<version>-windows-x64.zip.sha256
 ```
 
-默认发布包不包含 Qt 翻译文件、编译器运行时 DLL 和软件 OpenGL 兜底库。需要兼容性兜底时可以使用：
+By default, the package excludes Qt translations, compiler runtime DLLs, and the software OpenGL fallback library. Use
+this when you want the OpenGL fallback:
 
 ```powershell
 python scripts/package_app.py --keep-opengl-sw
 ```
 
-## 许可
+## License
 
-本项目使用 MIT License。
+This project is licensed under the MIT License.

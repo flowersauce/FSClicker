@@ -7,7 +7,7 @@ AlignConsecutiveAssignments: true   # [KEEP] 保留等号对齐
 AlignConsecutiveDeclarations: true  # [KEEP] 保留变量类型对齐
 AlignConsecutiveMacros: true        # [KEEP] 保留宏对齐
 AlignOperands: false                # [MODIFIED] 禁止操作符对齐
-AlignTrailingComments:              # [MODIFIED] 注释对齐改为 Never
+AlignTrailingComments: # [MODIFIED] 注释对齐改为 Never
   Kind: Always                      # 尾部注释对齐
   OverEmptyLines: 2
 AllowShortBlocksOnASingleLine: Never

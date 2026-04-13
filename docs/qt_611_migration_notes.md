@@ -1,58 +1,36 @@
-# Qt 6.11 Migration Notes
+# Qt 6.11 迁移记录
 
-## Current Status
+## 当前状态
 
-- Project source layout has been reorganized:
-  - `src/` for implementation files.
-  - `include/` for headers.
-  - `ui/` for Qt Designer files.
-  - `resources/` for qrc/rc and runtime assets.
-  - `scripts/` for helper scripts.
-- Build target has been renamed to `FSClicker`.
-- User-facing app name is `FSClicker`.
-- Project version is defined in `CMakeLists.txt` as `FS_CLICKER_VERSION`.
-- `MainWindow` has been partially split into smaller initialization and injection-state methods.
-- Global keyboard hook logic has been moved into `KeyboardHook`.
-- Packaging script is now argument-based: `scripts/package_app.py`.
+- 项目源代码目录已经整理为 `src/`、`include/`、`resources/`、`qml/`、`scripts/`。
+- 构建目标名和应用名统一为 `FSClicker`。
+- 项目版本在 `CMakeLists.txt` 的 `FS_CLICKER_VERSION` 中维护。
+- 当前默认使用 Qt 6.11 动态库构建。
+- MinGW 运行时默认静态链接，见 `FS_CLICKER_STATIC_RUNTIME`。
+- 发布包由 `scripts/package_app.py` 基于已编译好的构建目录生成。
 
-## Qt 6.11 Dynamic Build Verified
+## Qt 6.11 动态构建
 
-The project has been verified with the moved Qt 6.11 dynamic installation:
+示例配置命令：
 
 ```powershell
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe -S . -B build-qt611 -G Ninja `
-  -DCMAKE_CXX_COMPILER=D:/APP/DevEnv/Qt/Tools/mingw1310_64/bin/g++.exe `
-  -DCMAKE_MAKE_PROGRAM=D:/APP/DevEnv/Qt/Tools/Ninja/ninja.exe `
-  -DCMAKE_PREFIX_PATH=D:/APP/DevEnv/Qt/6.11.0/mingw_64
+$env:QT_ROOT = "<Qt mingw_64 目录>"
+$env:MINGW_ROOT = "<MinGW 目录>"
 
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe --build build-qt611
+cmake -S . -B build-qt611 -G Ninja `
+  -DCMAKE_CXX_COMPILER="$env:MINGW_ROOT/bin/g++.exe" `
+  -DCMAKE_PREFIX_PATH="$env:QT_ROOT"
 ```
 
-Result:
+构建命令：
 
-```text
-Linking CXX executable FSClicker.exe
+```powershell
+cmake --build build-qt611
 ```
 
-## Important Path Notes
+## 路径检查
 
-During this session, the current shell still had old Qt paths in `PATH`, including:
-
-```text
-D:\Qt\6.7.2\mingw_64\bin
-D:\Qt\Tools\mingw1120_64\bin
-```
-
-After reboot, verify the effective paths again. Prefer the new Qt 6.11 paths:
-
-```text
-D:\APP\DevEnv\Qt\6.11.0\mingw_64\bin
-D:\APP\DevEnv\Qt\Tools\mingw1310_64\bin
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin
-D:\APP\DevEnv\Qt\Tools\Ninja
-```
-
-Useful checks:
+如果构建异常，先确认命令实际指向的工具链：
 
 ```powershell
 where.exe cmake ninja g++ qmake
@@ -61,84 +39,34 @@ ninja --version
 g++ --version
 ```
 
-## Static Qt Build Plan
-
-Qt Installer did not provide a ready-made static Qt kit. Static Qt should be built from source.
-
-Use this after reboot, once environment variables are clean:
-
-```powershell
-$env:Path = "D:\APP\DevEnv\Qt\Tools\mingw1310_64\bin;D:\APP\DevEnv\Qt\Tools\CMake_64\bin;D:\APP\DevEnv\Qt\Tools\Ninja;" + $env:Path
-
-New-Item -ItemType Directory -Force D:\APP\DevEnv\Qt\Build\qt-6.11.0-static | Out-Null
-Set-Location D:\APP\DevEnv\Qt\Build\qt-6.11.0-static
-
-D:\APP\DevEnv\Qt\6.11.0\Src\configure.bat `
-  -prefix D:\APP\DevEnv\Qt\6.11.0\mingw_64_static `
-  -static `
-  -release `
-  -opensource `
-  -confirm-license `
-  -nomake examples `
-  -nomake tests `
-  -skip qtwebengine
-```
-
-If configure succeeds:
-
-```powershell
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe --build . --parallel
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe --install .
-```
-
-Then build this project against static Qt:
-
-```powershell
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe -S . -B build-qt611-static -G Ninja `
-  -DCMAKE_CXX_COMPILER=D:/APP/DevEnv/Qt/Tools/mingw1310_64/bin/g++.exe `
-  -DCMAKE_MAKE_PROGRAM=D:/APP/DevEnv/Qt/Tools/Ninja/ninja.exe `
-  -DCMAKE_PREFIX_PATH=D:/APP/DevEnv/Qt/6.11.0/mingw_64_static `
-  -DFS_CLICKER_STATIC_QT=ON `
-  -DFS_CLICKER_STATIC_RUNTIME=ON
-
-D:\APP\DevEnv\Qt\Tools\CMake_64\bin\cmake.exe --build build-qt611-static
-```
-
-## CMake Static Options
-
-The project defines:
-
-```cmake
-option(FS_CLICKER_STATIC_RUNTIME "Link MinGW runtime libraries statically." ON)
-option(FS_CLICKER_STATIC_QT "Require a static Qt build and link Qt libraries statically." OFF)
-```
-
-`FS_CLICKER_STATIC_QT=ON` intentionally fails when `CMAKE_PREFIX_PATH` points to a shared Qt installation. This prevents accidentally believing Qt was statically linked when it was not.
-
-## Packaging Notes
-
-Dynamic Qt packaging command example:
-
-```powershell
-python scripts/package_app.py `
-  --build-dir build-qt611 `
-  --qt-bin D:/APP/DevEnv/Qt/6.11.0/mingw_64/bin `
-  --mingw-bin D:/APP/DevEnv/Qt/Tools/mingw1310_64/bin
-```
-
-`windeployqt` deploys Qt libraries and plugins, but may not copy MinGW runtime DLLs. The packaging script still handles:
+优先使用 Qt 6.11 对应路径，可通过环境变量维护：
 
 ```text
-libstdc++-6.dll
-libgcc_s_seh-1.dll
-libwinpthread-1.dll
+QT_ROOT=<Qt mingw_64 目录>
+MINGW_ROOT=<MinGW 目录>
 ```
 
-When using a true static Qt build with static runtime linkage, this packaging step should become much simpler, but it should still be verified on a clean machine.
+## 发布打包
 
-## Next Steps After Reboot
+打包脚本不负责编译，只搜索名称包含 `build` 的目录，并使用其中最新的 `FSClicker.exe`。
 
-1. Verify `PATH` no longer points to old `D:\Qt\6.7.2` or `mingw1120` paths.
-2. Re-run the Qt 6.11 dynamic build if needed.
-3. Start the static Qt configure step.
-4. If configure fails, save the full output and adjust skipped modules or dependencies.
+默认命令：
+
+```powershell
+python scripts/package_app.py
+```
+
+常用参数：
+
+```powershell
+python scripts/package_app.py --build-dir build-release
+python scripts/package_app.py --keep-opengl-sw
+python scripts/package_app.py --keep-translations
+```
+
+默认发布包会排除 Qt 翻译文件、编译器运行时 DLL 和软件 OpenGL 兜底库。`--keep-opengl-sw` 可用于保留 `opengl32sw.dll`
+，提升少数显卡驱动异常环境下的兼容性。
+
+## 静态 Qt
+
+当前项目不再保留静态 Qt 专用 CMake 选项。后续如果需要彻底减少动态 DLL，需要单独准备静态 Qt 工具链，并把它作为独立发布方案处理。

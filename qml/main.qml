@@ -1,7 +1,10 @@
+// FSClicker 主窗口。
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import "theme"
+import "components"
 
 ApplicationWindow {
     id: root
@@ -49,12 +52,14 @@ ApplicationWindow {
             "鼠标左键": "Left",
             "鼠标中键": "Middle",
             "鼠标右键": "Right",
-            "退格": "Back",
-            "回车": "Enter",
-            "空格": "Space",
-            "截屏": "Print",
-            "未设置": "Unset",
-            "未知": "Unknown"
+            "滚轮上"  : "Whl Up",
+            "滚轮下"  : "Whl Dn",
+            "退格"    : "Back",
+            "回车"    : "Enter",
+            "空格"    : "Space",
+            "截屏"    : "Print",
+            "未设置"  : "Unset",
+            "未知"    : "Unknown"
         }
         return keyNames[name] || name
     }
@@ -72,13 +77,13 @@ ApplicationWindow {
         }
 
         const statusTexts = {
-            "按下全局开关启动": "Press hotkey to start",
-            "按下全局开关终止": "Press hotkey to stop",
-            "按下新的全局开关": "Press new hotkey",
-            "按下要连点的键": "Press target key",
-            "点击屏幕捕获坐标": "Click screen to pick point",
+            "按下全局开关启动" : "Press hotkey to start",
+            "按下全局开关终止" : "Press hotkey to stop",
+            "按下新的全局开关" : "Press new hotkey",
+            "按下要连点的键"   : "Press target key",
+            "点击屏幕捕获坐标" : "Click screen to pick point",
             "按键不可用，请重试": "Key unavailable",
-            "等待配置完成": "Complete setup"
+            "等待配置完成"     : "Complete setup"
         }
         return statusTexts[text] || text
     }
@@ -87,156 +92,22 @@ ApplicationWindow {
         appConfig.uiScale = value
     }
 
+    function setTimingJitterPercent(value) {
+        const normalized            = Math.max(0, Math.min(20, Number(value) || 0))
+        clicker.timingJitterPercent = normalized
+    }
+
     AtomTheme {
         id: theme; dark: appConfig.darkTheme
     }
 
-    component TrafficButton: Item {
-        id: trafficButton
-        property color normalColor: theme.control
-        property color hoverColor: normalColor
-        property color pressedColor: theme.controlPressed
-        signal clicked()
-        width: 14
-        height: 14
-        Rectangle {
-            anchors.fill: parent
-            radius: theme.trafficRadius
-            color: trafficMouseArea.pressed ? trafficButton.pressedColor : (trafficMouseArea.containsMouse ? trafficButton.hoverColor : trafficButton.normalColor)
-        }
-        MouseArea {
-            id: trafficMouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: trafficButton.clicked()
-        }
-    }
+    Connections {
+        target: clicker
 
-    component NavButton: Item {
-        id: navButton
-        property bool selected: false
-        property string text: ""
-        signal clicked()
-        width: 88
-        height: 32
-        Rectangle {
-            anchors.fill: parent
-            radius: theme.controlRadius
-            color: !navButton.enabled ? theme.controlDisabled
-                   : (navMouseArea.pressed ? theme.controlPressed
-                                      : (navButton.selected ? theme.controlChecked
-                                                            : (navMouseArea.containsMouse ? theme.controlHover : theme.controlNormal)))
-            border.color: theme.controlBorder
-            border.width: 0
-        }
-        Text {
-            anchors.fill: parent
-            text: navButton.text
-            color: navButton.enabled ? theme.activeText : theme.mutedText
-            font.pixelSize: 15
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-        MouseArea {
-            id: navMouseArea
-            anchors.fill: parent
-            enabled: navButton.enabled
-            hoverEnabled: true
-            onClicked: navButton.clicked()
-        }
-    }
-
-    component SegmentButton: Item {
-        id: segmentButton
-        property bool selected: false
-        property bool rightRounded: false
-        property string text: ""
-        signal clicked()
-        width: 60
-        height: 32
-        enabled: parent ? parent.enabled : true
-        Rectangle {
-            anchors.fill: parent
-            color: !segmentButton.enabled ? theme.controlDisabled
-                   : (segmentMouseArea.pressed ? theme.controlPressed
-                                         : (segmentButton.selected ? theme.controlChecked
-                                                                  : (segmentMouseArea.containsMouse ? theme.controlHover : theme.controlNormal)))
-            topRightRadius: segmentButton.rightRounded ? theme.controlRadius : 0
-            bottomRightRadius: segmentButton.rightRounded ? theme.controlRadius : 0
-            border.color: theme.controlBorder
-            border.width: 0
-        }
-        Text {
-            anchors.fill: parent
-            text: segmentButton.text
-            color: segmentButton.enabled ? theme.activeText : theme.mutedText
-            font.pixelSize: 12
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
-        MouseArea {
-            id: segmentMouseArea
-            anchors.fill: parent
-            enabled: segmentButton.enabled
-            hoverEnabled: true
-            onClicked: segmentButton.clicked()
-        }
-    }
-
-    component ConfigRow: Rectangle {
-        id: configRow
-        property string label: ""
-        property bool rowEnabled: true
-        width: 320
-        height: 32
-        radius: theme.controlRadius
-        color: theme.configBar
-        enabled: rowEnabled
-        Rectangle {
-            x: 0; y: 0; width: 80; height: 32
-            topLeftRadius: theme.controlRadius
-            bottomLeftRadius: theme.controlRadius
-            color: theme.control
-            opacity: configRow.enabled ? 1.0 : 0.55
-            Text { anchors.centerIn: parent; text: configRow.label; color: configRow.enabled ? theme.activeText : theme.mutedText; font.pixelSize: 12 }
-        }
-    }
-
-    component SmallActionButton: Item {
-        id: smallActionButton
-        property string text: ""
-        property bool checked: false
-        signal clicked()
-        width: 77
-        height: 32
-        enabled: parent ? parent.enabled : true
-        Rectangle {
-            anchors.fill: parent
-            color: !smallActionButton.enabled ? theme.controlDisabled
-                   : (smallMouseArea.pressed ? theme.controlPressed
-                                             : (smallActionButton.checked ? theme.controlChecked
-                                                                         : (smallMouseArea.containsMouse ? theme.controlHover : theme.controlNormal)))
-            topRightRadius: theme.controlRadius
-            bottomRightRadius: theme.controlRadius
-            border.color: theme.controlBorder
-            border.width: 0
-        }
-        Text {
-            anchors.fill: parent
-            text: smallActionButton.text
-            color: smallActionButton.enabled ? theme.activeText : theme.mutedText
-            font.pixelSize: 12
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
-        }
-        MouseArea {
-            id: smallMouseArea
-            anchors.fill: parent
-            enabled: smallActionButton.enabled
-            hoverEnabled: true
-            onClicked: smallActionButton.clicked()
+        function onRunningChanged() {
+            if (clicker.running) {
+                root.pageIndex = 0
+            }
         }
     }
 
@@ -247,7 +118,7 @@ ApplicationWindow {
         transformOrigin: Item.TopLeft
         radius: theme.windowRadius
         color: theme.window
-        border.color: theme.windowBorder
+        border.color: root.pinned ? (theme.dark ? Qt.lighter(theme.windowBorder, 1.45) : Qt.darker(theme.windowBorder, 1.25)) : theme.windowBorder
         border.width: theme.borderWidth
         clip: true
 
@@ -268,15 +139,19 @@ ApplicationWindow {
                     x: 16; y: 0; width: 250; height: 32; text: "FSClicker"; color: theme.titleText; font.family: root.latinFontFamily; font.pixelSize: 14; font.weight: Font.DemiBold; verticalAlignment: Text.AlignVCenter; elide: Text.ElideRight
                 }
 
-                TrafficButton {
-                    x: 407; y: 9; normalColor: theme.green; hoverColor: theme.trafficPinHover; onClicked:
-                    { root.pinned = !root.pinned; root.updateWindowFlags() }
-                }
-                TrafficButton {
-                    x: 430; y: 9; normalColor: theme.yellow; hoverColor: theme.trafficMinimizeHover; onClicked: root.showMinimized()
-                }
-                TrafficButton {
-                    x: 453; y: 9; normalColor: theme.danger; hoverColor: theme.trafficCloseHover; onClicked: Qt.quit()
+                Item {
+                    id: trafficGroup
+                    x: 394; y: 9; width: 73; height: 14
+                    TrafficButton {
+                        x: 0; y: 0; leftRounded: true; normalColor: theme.green; onClicked: root.showMinimized()
+                    }
+                    TrafficButton {
+                        x: 25; y: 0; checked: root.pinned; normalColor: theme.yellow; onClicked:
+                        { root.pinned = !root.pinned; root.updateWindowFlags() }
+                    }
+                    TrafficButton {
+                        x: 50; y: 0; rightRounded: true; normalColor: theme.danger; onClicked: Qt.quit()
+                    }
                 }
             }
 
@@ -290,13 +165,13 @@ ApplicationWindow {
                     x: 120; y: 16; width: 4; height: 260; radius: 2; color: theme.window
                 }
                 NavButton {
-                    x: 16; y: 16; text: root.trText("功能", "Func"); selected: root.pageIndex === 0; onClicked: root.pageIndex = 0
+                    x: 16; y: 16; text: root.trText("功能", "Func"); enabled: !clicker.running; selected: root.pageIndex === 0; onClicked: root.pageIndex = 0
                 }
                 NavButton {
-                    x: 16; y: 54; text: root.trText("设置", "Set"); selected: root.pageIndex === 1; onClicked: root.pageIndex = 1
+                    x: 16; y: 54; text: root.trText("设置", "Set"); enabled: !clicker.running; selected: root.pageIndex === 1; onClicked: root.pageIndex = 1
                 }
                 NavButton {
-                    x: 16; y: 92; text: root.trText("关于", "Info"); selected: root.pageIndex === 2; onClicked: root.pageIndex = 2
+                    x: 16; y: 92; text: root.trText("关于", "Info"); enabled: !clicker.running; selected: root.pageIndex === 2; onClicked: root.pageIndex = 2
                 }
 
                 Item {
@@ -350,9 +225,9 @@ ApplicationWindow {
                         }
                     }
                     ConfigRow {
-                        y: 168; label: root.trText("输入周期", "Period"); rowEnabled: clicker.inputActionMode === 0 && !clicker.running
+                        y: 168; width: 209; label: root.trText("输入周期", "Period"); rowEnabled: clicker.inputActionMode === 0 && !clicker.running
                         TextField {
-                            x: 80; y: 0; width: 240; height: 32
+                            x: 80; y: 0; width: 101; height: 32
                             text: Number(clicker.cycleSeconds).toFixed(3)
                             color: enabled ? theme.activeText : theme.mutedText
                             horizontalAlignment: TextInput.AlignHCenter
@@ -366,10 +241,41 @@ ApplicationWindow {
                             background: Rectangle {
                                 color: "transparent"; topRightRadius: theme.controlRadius; bottomRightRadius: theme.controlRadius
                             }
+                            onTextEdited: if (acceptableInput) clicker.cycleSeconds = Number(text)
                             onEditingFinished: clicker.cycleSeconds = Number(text)
                         }
                         Text {
-                            x: 292; y: 0; width: 28; height: 32; text: root.trText("秒", "s"); color: parent.enabled ? theme.activeText : theme.mutedText; font.family: root.trText(root.uiFontFamily, root.latinFontFamily); font.pixelSize: 12; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                            x: 181; y: 0; width: 28; height: 32; text: root.trText("秒", "s"); color: parent.enabled ? theme.activeText : theme.mutedText; font.family: root.trText(root.uiFontFamily, root.latinFontFamily); font.pixelSize: 12; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                    Rectangle {
+                        x: 215; y: 168; width: 105; height: 32
+                        radius: theme.controlRadius
+                        color: theme.configBar
+                        enabled: clicker.inputActionMode === 0 && !clicker.running
+                        Text {
+                            x: 0; y: 0; width: 28; height: 32; text: "±"; color: parent.enabled ? theme.activeText : theme.mutedText; font.family: root.monoFontFamily; font.pixelSize: 12; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
+                        }
+                        TextField {
+                            x: 28; y: 0; width: 49; height: 32
+                            text: Number(clicker.timingJitterPercent).toFixed(0)
+                            color: enabled ? theme.activeText : theme.mutedText
+                            horizontalAlignment: TextInput.AlignHCenter
+                            verticalAlignment: TextInput.AlignVCenter
+                            font.family: root.monoFontFamily
+                            font.pixelSize: 12
+                            selectByMouse: true
+                            validator: IntValidator {
+                                bottom: 0; top: 20
+                            }
+                            background: Rectangle {
+                                color: "transparent"
+                            }
+                            onTextEdited: root.setTimingJitterPercent(text)
+                            onEditingFinished: root.setTimingJitterPercent(text)
+                        }
+                        Text {
+                            x: 77; y: 0; width: 28; height: 32; text: "%"; color: parent.enabled ? theme.activeText : theme.mutedText; font.family: root.monoFontFamily; font.pixelSize: 12; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
                         }
                     }
                     Rectangle {
@@ -388,36 +294,41 @@ ApplicationWindow {
                     visible: root.pageIndex === 1
 
                     ConfigRow {
-                        y: 16; label: root.trText("主题模式", "Theme")
-                        SegmentButton { x: 80; y: 0; width: 120; height: 32; text: root.trText("深色", "Dark"); selected: theme.dark; onClicked: appConfig.darkTheme = true }
-                        SegmentButton { x: 200; y: 0; width: 120; height: 32; text: root.trText("浅色", "Light"); rightRounded: true; selected: !theme.dark; onClicked: appConfig.darkTheme = false }
-                    }
-
-                    ConfigRow {
-                        y: 54; label: root.trText("应用缩放", "Scale")
-                        SegmentButton { x: 80; y: 0; width: 80; height: 32; text: "100%"; selected: root.uiScale === 1.0; onClicked: root.setApplicationScale(1.0) }
-                        SegmentButton { x: 160; y: 0; width: 80; height: 32; text: "125%"; selected: root.uiScale === 1.25; onClicked: root.setApplicationScale(1.25) }
-                        SegmentButton { x: 240; y: 0; width: 80; height: 32; text: "150%"; rightRounded: true; selected: root.uiScale === 1.5; onClicked: root.setApplicationScale(1.5) }
-                    }
-
-                    ConfigRow {
-                        y: 92; label: root.trText("界面语言", "Language")
-                        SegmentButton { x: 80; y: 0; width: 120; height: 32; text: "简体中文"; selected: root.language === "zh"; onClicked: appConfig.language = "zh" }
-                        SegmentButton { x: 200; y: 0; width: 120; height: 32; text: "English"; rightRounded: true; selected: root.language === "en"; onClicked: appConfig.language = "en" }
-                    }
-
-                    ConfigRow {
-                        y: 130; label: root.trText("预留设置", "Reserved"); rowEnabled: false
-                        Text {
-                            x: 80; y: 0; width: 240; height: 32
-                            text: root.trText("更多选项将在这里添加", "More options will appear here")
-                            color: theme.mutedText
-                            font.pixelSize: 12
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            elide: Text.ElideRight
+                        y: 16; label: root.trText("主题模式", "Theme"); rowEnabled: !clicker.running
+                        SegmentButton {
+                            x: 80; y: 0; width: 80; height: 32; text: root.trText("自动", "Auto"); selected: appConfig.themeMode === 0; onClicked: appConfig.themeMode = 0
+                        }
+                        SegmentButton {
+                            x: 160; y: 0; width: 80; height: 32; text: root.trText("深色", "Dark"); selected: appConfig.themeMode === 1; onClicked: appConfig.themeMode = 1
+                        }
+                        SegmentButton {
+                            x: 240; y: 0; width: 80; height: 32; text: root.trText("浅色", "Light"); rightRounded: true; selected: appConfig.themeMode === 2; onClicked: appConfig.themeMode = 2
                         }
                     }
+
+                    ConfigRow {
+                        y: 54; label: root.trText("应用缩放", "Scale"); rowEnabled: !clicker.running
+                        SegmentButton {
+                            x: 80; y: 0; width: 80; height: 32; text: "100%"; selected: appConfig.uiScaleIndex === 0; onClicked: appConfig.uiScaleIndex = 0
+                        }
+                        SegmentButton {
+                            x: 160; y: 0; width: 80; height: 32; text: "125%"; selected: appConfig.uiScaleIndex === 1; onClicked: appConfig.uiScaleIndex = 1
+                        }
+                        SegmentButton {
+                            x: 240; y: 0; width: 80; height: 32; text: "150%"; rightRounded: true; selected: appConfig.uiScaleIndex === 2; onClicked: appConfig.uiScaleIndex = 2
+                        }
+                    }
+
+                    ConfigRow {
+                        y: 92; label: root.trText("界面语言", "Language"); rowEnabled: !clicker.running
+                        SegmentButton {
+                            x: 80; y: 0; width: 120; height: 32; text: "简体中文"; selected: appConfig.languageIndex === 0; onClicked: appConfig.languageIndex = 0
+                        }
+                        SegmentButton {
+                            x: 200; y: 0; width: 120; height: 32; text: "English"; rightRounded: true; selected: appConfig.languageIndex === 1; onClicked: appConfig.languageIndex = 1
+                        }
+                    }
+
                 }
 
                 Item {
@@ -426,7 +337,7 @@ ApplicationWindow {
                     visible: root.pageIndex === 2
 
                     Image {
-                        x: 115; y: 30; width: 90; height: 90; source: "qrc:/resources/application.png"
+                        x: 105; y: 20; width: 110; height: 110; source: "qrc:/resources/FSClicker_transparent.svg"
                         fillMode: Image.PreserveAspectFit
                     }
                     Text {
@@ -441,7 +352,7 @@ ApplicationWindow {
                     }
                     Text {
                         x: 0; y: 172; width: 320
-                        text: root.trText("版本 1.3.0\n作者 Flowersauce", "Version 1.3.0\nAuthor Flowersauce")
+                        text: root.trText("版本 " + appVersion + "\n作者 Flowersauce", "Version " + appVersion + "\nAuthor Flowersauce")
                         color: theme.activeText
                         font.pixelSize: 13
                         lineHeight: 1.6
@@ -478,7 +389,7 @@ ApplicationWindow {
 
         function openCaptureWindow() {
             showFullScreen();
-            requestActivate();
+            coordinateCaptureWindow.requestActivate();
             captureMouseArea.forceActiveFocus()
         }
 

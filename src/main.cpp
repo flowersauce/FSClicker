@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief 程序入口和 QML 上下文初始化。
+ */
+
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -8,51 +13,44 @@
 
 namespace
 {
-void loadApplicationFont(const QString &resourcePath)
-{
-    QFontDatabase::addApplicationFont(resourcePath);
-}
-}
+	void loadApplicationFont(const QString &resourcePath)
+	{
+		QFontDatabase::addApplicationFont(resourcePath);
+	}
+} // namespace
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
-    QGuiApplication::setApplicationName(QStringLiteral(FS_CLICKER_APP_NAME));
-    QGuiApplication::setApplicationVersion(QStringLiteral(FS_CLICKER_APP_VERSION));
+	const QGuiApplication app(argc, argv);
+	QGuiApplication::setApplicationName(QStringLiteral(FS_CLICKER_APP_NAME));
+	QGuiApplication::setApplicationVersion(QStringLiteral(FS_CLICKER_APP_VERSION));
 
-    loadApplicationFont(QStringLiteral(":/resources/Jura-Medium.ttf"));
-    loadApplicationFont(QStringLiteral(":/resources/SarasaUiSC-Regular.ttf"));
+	loadApplicationFont(QStringLiteral(":/resources/Jura-Medium.ttf"));
+	loadApplicationFont(QStringLiteral(":/resources/SarasaUiSC-Regular.ttf"));
 
-    QFont appFont;
-    appFont.setFamilies(QStringList{
-        QStringLiteral("Jura"),
-        QStringLiteral("Sarasa UI SC"),
-        QStringLiteral("Sarasa UI"),
-        QStringLiteral("Microsoft YaHei UI"),
-        QStringLiteral("Microsoft YaHei"),
-        QStringLiteral("SimHei"),
-        QStringLiteral("sans-serif"),
-    });
-    appFont.setPointSize(10);
-    app.setFont(appFont);
+	QFont appFont;
+	appFont.setFamilies(QStringList{
+		QStringLiteral("Jura"),
+		QStringLiteral("Sarasa UI SC"),
+		QStringLiteral("Sarasa UI"),
+		QStringLiteral("Microsoft YaHei UI"),
+		QStringLiteral("Microsoft YaHei"),
+		QStringLiteral("SimHei"),
+		QStringLiteral("sans-serif"),
+	});
+	appFont.setPointSize(10);
+	QGuiApplication::setFont(appFont);
 
-    ClickerController controller;
-    AppConfig appConfig(&controller);
+	ClickerController controller;
+	AppConfig		  appConfig(&controller);
 
-    QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty(QStringLiteral("clicker"), &controller);
-    engine.rootContext()->setContextProperty(QStringLiteral("appConfig"), &appConfig);
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
-        &app,
-        []()
-        {
-            QCoreApplication::exit(-1);
-        },
-        Qt::QueuedConnection);
+	QQmlApplicationEngine engine;
+	engine.rootContext()->setContextProperty(QStringLiteral("clicker"), &controller);
+	engine.rootContext()->setContextProperty(QStringLiteral("appConfig"), &appConfig);
+	engine.rootContext()->setContextProperty(QStringLiteral("appVersion"), QGuiApplication::applicationVersion());
+	QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
 
-    engine.loadFromModule(QStringLiteral("FSClicker"), QStringLiteral("Main"));
+	engine.loadFromModule(QStringLiteral("FSClicker"), QStringLiteral("Main"));
 
-    return app.exec();
+	return QGuiApplication::exec();
 }

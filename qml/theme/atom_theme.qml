@@ -1,3 +1,5 @@
+// FSClicker 主题色。
+
 import QtQuick
 
 QtObject {
@@ -15,25 +17,25 @@ QtObject {
     readonly property color atomGreen: "#98c379"
     readonly property color atomYellow: "#e5c07b"
 
-    readonly property color window: dark ? atomGutter : "#fafafa"
-    readonly property color windowBorder: dark ? atomSelection : "#d0d7de"
-    readonly property color titleBar: dark ? atomBg : "#ffffff"
-    readonly property color titleBarBorder: dark ? atomBg : "#d8dee8"
+    readonly property color window: dark ? atomGutter : "#edf1f7"
+    readonly property color windowBorder: dark ? atomSelection : "#a8b2c1"
+    readonly property color titleBar: dark ? atomBg : "#f9fbff"
+    readonly property color titleBarBorder: dark ? atomBg : "#c7d0dc"
     readonly property color panel: dark ? atomBg : "#ffffff"
-    readonly property color panelBorder: dark ? atomBg : "#d8dee8"
-    readonly property color configBar: dark ? atomSelection : "#e6eaf0"
-    readonly property color control: dark ? "#4b5263" : "#d6dce6"
-    readonly property color controlHover: dark ? "#262b32" : "#dbe1ea"
-    readonly property color controlPressed: dark ? atomGutter : "#b8c1cf"
-    readonly property color controlChecked: dark ? atomGutter : "#aeb8c8"
+    readonly property color panelBorder: dark ? atomBg : "#cbd5e1"
+    readonly property color configBar: dark ? atomSelection : "#d7dee9"
+    readonly property color control: dark ? "#4b5263" : "#c3ccd9"
+    readonly property color controlHover: dark ? "#262b32" : "#e4e9f1"
+    readonly property color controlPressed: dark ? atomGutter : "#aeb9c8"
+    readonly property color controlChecked: dark ? atomGutter : "#b8c2d1"
     readonly property color controlDisabled: dark ? "transparent" : "transparent"
     readonly property color controlNormal: "transparent"
     readonly property color controlBorder: "transparent"
     readonly property color controlPressedBorder: "transparent"
     readonly property color text: dark ? atomText : "#24292f"
     readonly property color activeText: dark ? "#ffffff" : "#0f1720"
-    readonly property color mutedText: dark ? atomComment : "#68707c"
-    readonly property color titleText: dark ? atomBlue : "#3b6ea8"
+    readonly property color mutedText: dark ? atomComment : "#5e6875"
+    readonly property color titleText: dark ? atomBlue : "#245f9f"
     readonly property color accent: dark ? atomBlue : "#2f6fed"
     readonly property color accentDisabled: dark ? "#1f3552" : "#b8c9ee"
     readonly property color danger: dark ? atomRed : "#d64545"
