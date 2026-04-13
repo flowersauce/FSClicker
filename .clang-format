@@ -1,20 +1,21 @@
+# Generated from CLion C/C++ Code Style settings
 ---
 Language: Cpp
 BasedOnStyle: LLVM
 AccessModifierOffset: -4
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: true
-AlignConsecutiveMacros: true
-AlignOperands: true
-AlignTrailingComments: # 尾部注释对齐
-  Kind: Always
+AlignConsecutiveAssignments: true   # [KEEP] 保留等号对齐
+AlignConsecutiveDeclarations: true  # [KEEP] 保留变量类型对齐
+AlignConsecutiveMacros: true        # [KEEP] 保留宏对齐
+AlignOperands: false                # [MODIFIED] 禁止操作符对齐
+AlignTrailingComments:              # [MODIFIED] 注释对齐改为 Never
+  Kind: Always                      # 尾部注释对齐
   OverEmptyLines: 2
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: Yes
-BinPackArguments: false  # 禁止将多个函数调用参数放在同一行
+BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
   AfterCaseLabel: true
@@ -35,12 +36,12 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 BreakBeforeBraces: Allman
-BreakConstructorInitializers: AfterColon
+BreakConstructorInitializers: BeforeComma
 BreakConstructorInitializersBeforeComma: false
-BreakBeforeBinaryOperators: NonAssignment  # 二元操作符换行（非赋值）
-ColumnLimit: 160  # 可以根据需求调整行限制
+BreakBeforeBinaryOperators: NonAssignment
+ColumnLimit: 160
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
-ContinuationIndentWidth: 8
+ContinuationIndentWidth: 4          # [MODIFIED] 应与 TabWidth 一致
 IncludeCategories:
   - Regex: '^<.*'
     Priority: 1
@@ -56,7 +57,7 @@ MacroBlockBegin: ''
 MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
-PenaltyBreakBeforeFirstCallParameter: 1  # 在函数调用的第一个参数之前尽量换行
+PenaltyBreakBeforeFirstCallParameter: 1
 SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: false
 SpaceBeforeRangeBasedForLoopColon: false
@@ -66,3 +67,5 @@ SpacesInConditionalStatement: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 TabWidth: 4
+UseTab: Always                      # [MODIFIED] 强制使用 Tab 缩进
+...

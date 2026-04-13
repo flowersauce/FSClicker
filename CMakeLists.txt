@@ -1,81 +1,89 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 
-project(FlowersauceClicker VERSION 0.1 LANGUAGES CXX)
+set(FS_CLICKER_TARGET_NAME FSClicker)
+set(FS_CLICKER_DISPLAY_NAME "FSClicker")
+set(FS_CLICKER_VERSION 1.3.0)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+project(${FS_CLICKER_TARGET_NAME} VERSION ${FS_CLICKER_VERSION} LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+option(FS_CLICKER_STATIC_RUNTIME "Link MinGW runtime libraries statically." ON)
+option(FS_CLICKER_STATIC_QT "Require a static Qt build and link Qt libraries statically." OFF)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Multimedia)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia)
+find_package(Qt6 6.11 REQUIRED COMPONENTS Core Quick Qml Multimedia)
 
-set(PROJECT_SOURCES
-        main.cpp
-        resource.rc
-        resources.qrc
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        customwidget.cpp
-        customwidget.h
-        customwidget.ui
-        coordinatecapturewindow.cpp
-        coordinatecapturewindow.h
-        eventinjector.cpp
-        eventinjector.h
-        globaldefinitions.cpp
-        globaldefinitions.h
-)
-
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(FlowersauceClicker
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET FlowersauceClicker APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(FlowersauceClicker SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(FlowersauceClicker
-            ${PROJECT_SOURCES}
-        )
+if(FS_CLICKER_STATIC_QT)
+    get_target_property(QT_CORE_TYPE Qt6::Core TYPE)
+    if(QT_CORE_TYPE STREQUAL "SHARED_LIBRARY")
+        message(FATAL_ERROR "FS_CLICKER_STATIC_QT requires a static Qt build. The current Qt installation is shared.")
     endif()
 endif()
 
-target_link_libraries(FlowersauceClicker PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Multimedia)
+qt_standard_project_setup(REQUIRES 6.11)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.FlowersauceClicker)
+qt_add_executable(${FS_CLICKER_TARGET_NAME}
+    WIN32
+    src/main.cpp
+    src/app_config.cpp
+    src/clicker_controller.cpp
+    src/event_injector.cpp
+    src/global_definitions.cpp
+    src/keyboard_hook.cpp
+    include/app_config.h
+    include/clicker_controller.h
+    include/event_injector.h
+    include/global_definitions.h
+    include/keyboard_hook.h
+    resources/app_icon.rc
+)
+
+qt_add_qml_module(${FS_CLICKER_TARGET_NAME}
+    URI FSClicker
+    VERSION 1.0
+    QML_FILES
+        qml/Main.qml
+        qml/theme/AtomTheme.qml
+)
+
+qt_add_resources(${FS_CLICKER_TARGET_NAME} app_assets
+    PREFIX "/"
+    FILES
+        resources/application.png
+        resources/Jura-Medium.ttf
+        resources/SarasaUiSC-Regular.ttf
+        resources/open.wav
+        resources/close.wav
+)
+
+target_include_directories(${FS_CLICKER_TARGET_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_compile_definitions(${FS_CLICKER_TARGET_NAME} PRIVATE
+    FS_CLICKER_APP_NAME="${FS_CLICKER_DISPLAY_NAME}"
+    FS_CLICKER_APP_VERSION="${PROJECT_VERSION}"
+)
+
+target_link_libraries(${FS_CLICKER_TARGET_NAME} PRIVATE
+    Qt6::Core
+    Qt6::Quick
+    Qt6::Qml
+    Qt6::Multimedia
+)
+
+if(FS_CLICKER_STATIC_RUNTIME AND MINGW)
+    target_link_options(${FS_CLICKER_TARGET_NAME} PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
-set_target_properties(FlowersauceClicker PROPERTIES
-    ${BUNDLE_ID_OPTION}
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
+
+set_target_properties(${FS_CLICKER_TARGET_NAME} PROPERTIES
+    OUTPUT_NAME ${FS_CLICKER_TARGET_NAME}
 )
 
 include(GNUInstallDirs)
-install(TARGETS FlowersauceClicker
+install(TARGETS ${FS_CLICKER_TARGET_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(FlowersauceClicker)
-endif()

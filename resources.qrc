@@ -1,8 +1,0 @@
-<RCC>
-<qresource prefix="/">
-    <file>resources/application.png</file>
-    <file>resources/CascadiaMono.ttf</file>
-    <file>resources/open.wav</file>
-    <file>resources/close.wav</file>
-</qresource>
-</RCC>
