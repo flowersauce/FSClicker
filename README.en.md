@@ -24,14 +24,10 @@
 
 ## Features
 
-- Repeated left, middle, and right mouse clicks.
-- Custom keyboard key and mouse wheel up/down input.
+- Mouse and custom key input.
 - Repeat and hold input modes.
 - Locked-position clicking with screen coordinate capture.
 - Period-based input with `0% - 20%` dynamic jitter.
-- Chinese and English UI.
-- Auto, dark, and light themes.
-- Settings are saved when the app exits.
 
 ## Download
 
