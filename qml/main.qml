@@ -336,37 +336,55 @@ ApplicationWindow {
                     x: 140; y: 0; width: 320; height: 292
                     visible: root.pageIndex === 2
 
-                    Image {
-                        x: 105; y: 20; width: 110; height: 110; source: "qrc:/resources/FSClicker_transparent.svg"
-                        fillMode: Image.PreserveAspectFit
-                    }
-                    Text {
-                        x: 0; y: 130; width: 320; height: 32
-                        text: "FSClicker"
-                        color: theme.link
-                        font.family: root.latinFontFamily
-                        font.pixelSize: 22
-                        font.weight: Font.DemiBold
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                    Text {
-                        x: 0; y: 172; width: 320
-                        text: root.trText("版本 " + appVersion + "\n作者 Flowersauce", "Version " + appVersion + "\nAuthor Flowersauce")
-                        color: theme.activeText
-                        font.pixelSize: 13
-                        lineHeight: 1.6
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                    Text {
-                        x: 0; y: 246; width: 320; height: 24
-                        text: root.trText("打开项目仓库", "Open repository")
-                        color: theme.link
-                        font.pixelSize: 13
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        MouseArea {
-                            anchors.fill: parent; onClicked: Qt.openUrlExternally("https://github.com/flowersauce/FlowersauceClicker")
+                    Column {
+                        x: 0; y: 28; width: 320
+                        spacing: 13
+
+                        Image {
+                            width: 104; height: 104
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            source: "qrc:/resources/FSClicker_transparent.svg"
+                            fillMode: Image.PreserveAspectFit
+                        }
+                        Text {
+                            width: 320; height: 30
+                            text: "FSClicker"
+                            color: theme.atomRed
+                            font.family: root.latinFontFamily
+                            font.pixelSize: 22
+                            font.weight: Font.DemiBold
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Text {
+                            width: 320; height: 46
+                            text: root.trText("版本 " + appVersion + "\n作者 " + appAuthor, "Version " + appVersion + "\nAuthor " + appAuthor)
+                            color: theme.activeText
+                            font.pixelSize: 13
+                            lineHeight: 1.45
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Text {
+                            id: repositoryLink
+                            readonly property color defaultColor: theme.mutedText
+                            readonly property color hoverColor: theme.dark ? Qt.lighter(defaultColor, 1.28) : Qt.darker(defaultColor, 1.12)
+                            readonly property color pressedColor: theme.dark ? Qt.darker(defaultColor, 1.18) : Qt.lighter(defaultColor, 1.12)
+
+                            width: implicitWidth; height: 24
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: root.trText("打开项目仓库", "Open repository")
+                            color: repositoryMouseArea.pressed ? pressedColor : (repositoryMouseArea.containsMouse ? hoverColor : defaultColor)
+                            font.pixelSize: 13
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            MouseArea {
+                                id: repositoryMouseArea
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Qt.openUrlExternally(appRepositoryUrl)
+                            }
                         }
                     }
                 }

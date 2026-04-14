@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
 	engine.rootContext()->setContextProperty(QStringLiteral("clicker"), &controller);
 	engine.rootContext()->setContextProperty(QStringLiteral("appConfig"), &appConfig);
 	engine.rootContext()->setContextProperty(QStringLiteral("appVersion"), QGuiApplication::applicationVersion());
+	engine.rootContext()->setContextProperty(QStringLiteral("appAuthor"), QStringLiteral(FS_CLICKER_AUTHOR_NAME));
+	engine.rootContext()->setContextProperty(QStringLiteral("appRepositoryUrl"), QStringLiteral(FS_CLICKER_REPOSITORY_URL));
 	QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app, []() { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
 
 	engine.loadFromModule(QStringLiteral("FSClicker"), QStringLiteral("Main"));

@@ -81,4 +81,4 @@ python scripts/package_app.py --keep-opengl-sw
 
 ## 许可
 
-Copyright (c) 2024 Flowersauce
+Copyright © 2024 Flowersauce

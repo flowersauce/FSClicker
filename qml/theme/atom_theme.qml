@@ -7,15 +7,15 @@ QtObject {
 
     property bool dark: true
 
-    readonly property color atomBg: "#282c34"
-    readonly property color atomGutter: "#21252b"
-    readonly property color atomSelection: "#3e4451"
-    readonly property color atomComment: "#5c6370"
-    readonly property color atomText: "#abb2bf"
-    readonly property color atomBlue: "#61afef"
-    readonly property color atomRed: "#e06c75"
-    readonly property color atomGreen: "#98c379"
-    readonly property color atomYellow: "#e5c07b"
+    readonly property color atomBg: dark ? "#282c34" : "#fafafa"
+    readonly property color atomGutter: dark ? "#21252b" : "#f0f0f0"
+    readonly property color atomSelection: dark ? "#3e4451" : "#e5e5e6"
+    readonly property color atomComment: dark ? "#5c6370" : "#a0a1a7"
+    readonly property color atomText: dark ? "#abb2bf" : "#383a42"
+    readonly property color atomBlue: dark ? "#61afef" : "#4078f2"
+    readonly property color atomRed: dark ? "#e06c75" : "#e45649"
+    readonly property color atomGreen: dark ? "#98c379" : "#50a14f"
+    readonly property color atomYellow: dark ? "#e5c07b" : "#c18401"
 
     readonly property color window: dark ? atomGutter : "#edf1f7"
     readonly property color windowBorder: dark ? atomSelection : "#a8b2c1"
@@ -34,18 +34,14 @@ QtObject {
     readonly property color controlPressedBorder: "transparent"
     readonly property color text: dark ? atomText : "#24292f"
     readonly property color activeText: dark ? "#ffffff" : "#0f1720"
-    readonly property color mutedText: dark ? atomComment : "#5e6875"
+    readonly property color mutedText: atomComment
     readonly property color titleText: dark ? atomBlue : "#245f9f"
     readonly property color accent: dark ? atomBlue : "#2f6fed"
     readonly property color accentDisabled: dark ? "#1f3552" : "#b8c9ee"
-    readonly property color danger: dark ? atomRed : "#d64545"
-    readonly property color link: dark ? atomRed : "#c94141"
-    readonly property color yellow: dark ? atomYellow : "#e3a008"
-    readonly property color green: dark ? atomGreen : "#2da44e"
-    readonly property color trafficCloseHover: dark ? "#be5046" : "#cf222e"
-    readonly property color trafficMinimizeHover: dark ? "#d19a66" : "#bf8700"
-    readonly property color trafficPinHover: dark ? "#56b6c2" : "#1a7f37"
-
+    readonly property color danger: atomRed
+    readonly property color link: atomRed
+    readonly property color yellow: atomYellow
+    readonly property color green: atomGreen
     readonly property int windowRadius: 28
     readonly property int panelRadius: 16
     readonly property int controlRadius: 8
