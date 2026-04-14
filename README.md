@@ -1,10 +1,6 @@
+<img src="assets/readme_header.svg" alt="FSClicker" width="100%">
+
 <p align="center">
-  中文 | <a href="README.en.md">English</a>
-</p>
-
-# FSClicker
-
-<p>
   <img alt="Windows" src="https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white">
   <img alt="Qt 6.11" src="https://img.shields.io/badge/Qt-6.11-41CD52?style=flat-square&logo=qt&logoColor=white">
   <img alt="C++23" src="https://img.shields.io/badge/C%2B%2B-23-00599C?style=flat-square&logo=cplusplus&logoColor=white">
@@ -12,7 +8,19 @@
   <img alt="License" src="https://img.shields.io/badge/License-MIT-2DA44E?style=flat-square">
 </p>
 
-FSClicker 是一款面向 Windows 的轻量连点器，使用 Qt Quick 编写。
+<p align="center">
+  中文 | <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <a href="#功能">功能</a> ·
+  <a href="#下载">下载</a> ·
+  <a href="#构建">构建</a> ·
+  <a href="#打包">打包</a> ·
+  <a href="#许可">许可</a>
+</p>
+
+---
 
 ## 功能
 
@@ -31,6 +39,8 @@ FSClicker 是一款面向 Windows 的轻量连点器，使用 Qt Quick 编写。
 
 ## 构建
 
+项目使用 Qt Quick 编写。
+
 需要：
 
 - Windows
@@ -43,8 +53,7 @@ FSClicker 是一款面向 Windows 的轻量连点器，使用 Qt Quick 编写。
 
 ```powershell
 cmake -S . -B build -G Ninja `
-  -DCMAKE_PREFIX_PATH="$env:QT_ROOT" `
-  -DFS_CLICKER_STATIC_RUNTIME=ON
+  -DCMAKE_PREFIX_PATH="$env:QT_ROOT"
 ```
 
 构建：
@@ -76,4 +85,4 @@ python scripts/package_app.py --keep-opengl-sw
 
 ## 许可
 
-本项目使用 MIT License。
+Copyright (c) 2024 Flowersauce

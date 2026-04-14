@@ -1,10 +1,6 @@
+<img src="assets/readme_header.svg" alt="FSClicker" width="100%">
+
 <p align="center">
-  <a href="README.md">中文</a> | English
-</p>
-
-# FSClicker
-
-<p>
   <img alt="Windows" src="https://img.shields.io/badge/Windows-0078D4?style=flat-square&logo=windows&logoColor=white">
   <img alt="Qt 6.11" src="https://img.shields.io/badge/Qt-6.11-41CD52?style=flat-square&logo=qt&logoColor=white">
   <img alt="C++23" src="https://img.shields.io/badge/C%2B%2B-23-00599C?style=flat-square&logo=cplusplus&logoColor=white">
@@ -12,7 +8,19 @@
   <img alt="License" src="https://img.shields.io/badge/License-MIT-2DA44E?style=flat-square">
 </p>
 
-FSClicker is a lightweight auto clicker for Windows, built with Qt Quick.
+<p align="center">
+  <a href="README.md">中文</a> | English
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> ·
+  <a href="#download">Download</a> ·
+  <a href="#build">Build</a> ·
+  <a href="#package">Package</a> ·
+  <a href="#license">License</a>
+</p>
+
+---
 
 ## Features
 
@@ -31,6 +39,8 @@ Download the latest Windows package from GitHub Releases, extract it, and run `F
 
 ## Build
 
+The app is built with Qt Quick.
+
 Requirements:
 
 - Windows
@@ -43,8 +53,7 @@ Configure:
 
 ```powershell
 cmake -S . -B build -G Ninja `
-  -DCMAKE_PREFIX_PATH="$env:QT_ROOT" `
-  -DFS_CLICKER_STATIC_RUNTIME=ON
+  -DCMAKE_PREFIX_PATH="$env:QT_ROOT"
 ```
 
 Build:
@@ -77,4 +86,4 @@ python scripts/package_app.py --keep-opengl-sw
 
 ## License
 
-This project is licensed under the MIT License.
+Copyright (c) 2024 Flowersauce
