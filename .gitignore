@@ -58,9 +58,13 @@ compile_commands.json
 
 # Exclude build directory
 build/
+build-codex/
 
 # Python
 .venv/
+__pycache__/
+*.pyc
+*.pyc.*
 
 # 打包发行文件
 output/

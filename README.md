@@ -69,14 +69,37 @@ python scripts/package_app.py
 脚本会搜索名称包含 `build` 的构建目录，使用其中最新的 `FSClicker.exe`，并生成：
 
 ```text
-output/release/FSClicker-v<version>-windows-x64.zip
-output/release/FSClicker-v<version>-windows-x64.zip.sha256
+output/release/FSClicker-v<version>-windows-x64-portable.zip
+output/release/FSClicker-v<version>-windows-x64-portable.zip.sha256
 ```
+
+便携包和本地开发运行会把配置文件保存到程序目录下的 `config/config.json`。Velopack 安装版会把配置保存到安装根目录下的 `config/config.json`，以便更新时保留、卸载时随安装目录移除。
 
 默认发布包会包含必需的 MinGW/编译器运行时 DLL，不包含 Qt 翻译文件和软件 OpenGL 兜底库。需要 OpenGL 兼容性兜底时可以使用：
 
 ```powershell
 python scripts/package_app.py --keep-opengl-sw
+```
+
+如需同时生成 Velopack 安装版，先安装 Velopack CLI，再运行：
+
+```powershell
+python scripts/package_app.py --with-velopack
+```
+
+同时会生成：
+
+```text
+output/release/FSClicker-v<version>-windows-x64-setup.exe
+output/release/FSClicker-v<version>-windows-x64-setup.exe.sha256
+```
+
+不传参数直接运行脚本时，也可以按提示选择是否生成安装版。
+
+最终可直接上传到 GitHub Release 的产物会统一输出到：
+
+```text
+output/release/
 ```
 
 ## 许可

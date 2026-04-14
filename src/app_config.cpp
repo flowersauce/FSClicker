@@ -5,7 +5,9 @@
 
 #include "app_config.h"
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -90,12 +92,63 @@ namespace
 		*value = static_cast<int>(rawValue);
 		return true;
 	}
+
+	QString applicationDirectoryPath()
+	{
+		return QCoreApplication::applicationDirPath();
+	}
+
+	QString appDirectoryConfigPath()
+	{
+		return QDir(applicationDirectoryPath()).filePath(QStringLiteral("config.json"));
+	}
+
+	bool isVelopackCurrentDirectory()
+	{
+		const QDir directory(applicationDirectoryPath());
+		return QFileInfo(directory.absolutePath()).fileName().compare(QStringLiteral("current"), Qt::CaseInsensitive) == 0
+			&& QFile::exists(directory.filePath(QStringLiteral("sq.version"))) && QFile::exists(directory.filePath(QStringLiteral("../Update.exe")));
+	}
+
+	QString configDirectoryPath()
+	{
+		if (isVelopackCurrentDirectory())
+		{
+			QDir installRoot(applicationDirectoryPath());
+			installRoot.cdUp();
+			return installRoot.filePath(QStringLiteral("config"));
+		}
+
+		return QDir(applicationDirectoryPath()).filePath(QStringLiteral("config"));
+	}
+
+	QString configFilePath()
+	{
+		return QDir(configDirectoryPath()).filePath(QStringLiteral("config.json"));
+	}
+
+	void migrateLegacyAppDirectoryConfig()
+	{
+		if (!QFile::exists(configFilePath()) && QFile::exists(appDirectoryConfigPath()))
+		{
+			QFile::copy(appDirectoryConfigPath(), configFilePath());
+		}
+	}
+
+	QString resolveConfigPath()
+	{
+		QDir configDirectory(configDirectoryPath());
+		configDirectory.mkpath(QStringLiteral("."));
+		migrateLegacyAppDirectoryConfig();
+
+		return configFilePath();
+	}
 } // namespace
 
 AppConfig::AppConfig(ClickerController *clicker, QObject *parent)
 	: QObject(parent)
 	, clicker(clicker)
-	, configPath(QCoreApplication::applicationDirPath() + QStringLiteral("/config.json"))
+	, configPath(resolveConfigPath())
 	, languageIndexValue(0)
 	, uiScaleIndexValue(0)
 	, themeModeValue(ThemeAuto)

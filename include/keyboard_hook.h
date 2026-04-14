@@ -20,6 +20,7 @@ public:
 	explicit KeyboardHook(QObject *parent = nullptr);
 	~KeyboardHook() override;
 
+	bool install();
 	bool isInstalled() const;
 
 signals:
@@ -28,6 +29,8 @@ signals:
 private:
 	static LRESULT CALLBACK keyboardHookCallback(int nCode, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK mouseHookCallback(int nCode, WPARAM wParam, LPARAM lParam);
+
+	void uninstall();
 
 	HHOOK keyboardHook;
 	HHOOK mouseHook;

@@ -74,6 +74,7 @@ public:
 	Q_INVOKABLE void setLockedCoordinate(int x, int y);
 	Q_INVOKABLE void toggleRunning();
 	Q_INVOKABLE void stop();
+	Q_INVOKABLE void installHooks();
 
 signals:
 	void runningChanged();

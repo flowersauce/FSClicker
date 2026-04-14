@@ -13,12 +13,40 @@ KeyboardHook::KeyboardHook(QObject *parent)
 	, keyboardHook(nullptr)
 	, mouseHook(nullptr)
 {
-	activeKeyboardHook = this;
-	keyboardHook	   = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardHookCallback, nullptr, 0);
-	mouseHook		   = SetWindowsHookEx(WH_MOUSE_LL, mouseHookCallback, nullptr, 0);
 }
 
 KeyboardHook::~KeyboardHook()
+{
+	uninstall();
+}
+
+bool KeyboardHook::install()
+{
+	if (isInstalled())
+	{
+		return false;
+	}
+
+	uninstall();
+	activeKeyboardHook = this;
+	keyboardHook	   = SetWindowsHookEx(WH_KEYBOARD_LL, keyboardHookCallback, nullptr, 0);
+	mouseHook		   = SetWindowsHookEx(WH_MOUSE_LL, mouseHookCallback, nullptr, 0);
+
+	if (!isInstalled())
+	{
+		uninstall();
+		return false;
+	}
+
+	return true;
+}
+
+bool KeyboardHook::isInstalled() const
+{
+	return keyboardHook != nullptr && mouseHook != nullptr;
+}
+
+void KeyboardHook::uninstall()
 {
 	if (keyboardHook)
 	{
@@ -36,11 +64,6 @@ KeyboardHook::~KeyboardHook()
 	{
 		activeKeyboardHook = nullptr;
 	}
-}
-
-bool KeyboardHook::isInstalled() const
-{
-	return keyboardHook != nullptr && mouseHook != nullptr;
 }
 
 LRESULT CALLBACK KeyboardHook::keyboardHookCallback(int nCode, WPARAM wParam, LPARAM lParam)

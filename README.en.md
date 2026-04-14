@@ -69,15 +69,38 @@ python scripts/package_app.py
 The script searches build directories whose names contain `build`, uses the newest `FSClicker.exe`, and creates:
 
 ```text
-output/release/FSClicker-v<version>-windows-x64.zip
-output/release/FSClicker-v<version>-windows-x64.zip.sha256
+output/release/FSClicker-v<version>-windows-x64-portable.zip
+output/release/FSClicker-v<version>-windows-x64-portable.zip.sha256
 ```
+
+Portable packages and local development runs store configuration at `config/config.json` inside the app directory. Velopack builds store configuration in `config/config.json` under the installation root, so it survives updates and is removed with the installation.
 
 By default, the package includes the required MinGW/compiler runtime DLLs, and excludes Qt translations and the
 software OpenGL fallback library. Use this when you want the OpenGL fallback:
 
 ```powershell
 python scripts/package_app.py --keep-opengl-sw
+```
+
+To generate the Velopack installer package at the same time, install the Velopack CLI first, then run:
+
+```powershell
+python scripts/package_app.py --with-velopack
+```
+
+This also creates:
+
+```text
+output/release/FSClicker-v<version>-windows-x64-setup.exe
+output/release/FSClicker-v<version>-windows-x64-setup.exe.sha256
+```
+
+When running the script without arguments, you can also choose whether to generate the installer in the prompt.
+
+Final GitHub Release artifacts are written to:
+
+```text
+output/release/
 ```
 
 ## License

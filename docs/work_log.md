@@ -10,7 +10,7 @@
 - `ClickerController` 负责 QML 状态、配置读写入口、全局热键、坐标捕获和启动/停止控制。
 - `EventInjector` 运行在线程中，使用 Win32 `SendInput` 发送鼠标和键盘事件。
 - `KeyboardHook` 安装键盘和鼠标低级钩子，支持普通按键、鼠标按键和滚轮上/下捕获。
-- `AppConfig` 负责 `config.json` 读取、边界检查、无效配置重置和退出时统一保存。
+- `AppConfig` 负责 `config.json` 读取、边界检查、便携/安装模式识别、无效配置重置和退出时统一保存。
 - QML 已拆分：主界面为 `qml/main.qml`，主题为 `qml/theme/atom_theme.qml`，通用控件位于 `qml/components/`。
 
 ## 已完成能力
@@ -21,7 +21,8 @@
 - 自由光标和固定坐标两种模式，坐标捕获使用全屏 QML 覆盖层。
 - 周期输入支持 `0% - 20%` 动态误差。当前实现是“单次间隔抖动”，长期均值围绕设定周期。
 - 主题支持自动、深色、浅色。自动模式跟随 Windows 深浅色偏好。
-- 语言、缩放、主题、连点功能配置都持久化到 exe 同目录的 `config.json`。
+- 语言、缩放、主题、连点功能配置会根据发布形态选择持久化位置。Velopack 安装版使用安装根目录下的 `config/config.json`；便携版、本地开发运行和其它非安装运行使用 exe 同目录 `config/config.json`。
+- 启动时会禁用 Qt shader/pipeline 磁盘缓存和 QML 磁盘缓存，避免默认写入用户 Local 目录。
 - 运行中会禁用侧栏和设置页入口，避免启动后修改关键配置。
 - 标题栏按钮改为三段式轻圆角按钮，绿色最小化，黄色置顶，红色关闭。
 - 关于页图标使用 `resources/FSClicker_transparent.svg`。
@@ -43,6 +44,7 @@
 
 - 打包脚本为 `scripts/package_app.py`。
 - 脚本不负责编译，只搜索名称包含 `build` 的目录，并使用其中最新的 `FSClicker.exe`。
+- 默认打包便携版 zip；无参数运行时会询问是否同时生成 Velopack 安装版，传入 `--with-velopack` 时会直接生成安装版。每次运行前会清理项目 `output/`，最终可上传产物统一汇总到 `output/release/`。
 - 默认执行：
 
 ```powershell

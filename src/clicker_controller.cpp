@@ -374,6 +374,14 @@ void ClickerController::stop()
 	emit stopEventInjector();
 }
 
+void ClickerController::installHooks()
+{
+	if (keyboardHook.install())
+	{
+		emit canStartChanged();
+	}
+}
+
 void ClickerController::handleKeyPressed(DWORD keyCode)
 {
 	const auto theKeyValue = keyMap.find(keyCode);
