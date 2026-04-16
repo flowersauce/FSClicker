@@ -18,24 +18,31 @@ class AppConfig : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QString language READ language WRITE setLanguage NOTIFY languageChanged)
-	Q_PROPERTY(int languageIndex READ languageIndex WRITE setLanguageIndex NOTIFY languageIndexChanged)
+	Q_PROPERTY(int languageMode READ languageMode WRITE setLanguageMode NOTIFY languageModeChanged)
 	Q_PROPERTY(double uiScale READ uiScale WRITE setUiScale NOTIFY uiScaleChanged)
 	Q_PROPERTY(int uiScaleIndex READ uiScaleIndex WRITE setUiScaleIndex NOTIFY uiScaleIndexChanged)
 	Q_PROPERTY(bool darkTheme READ darkTheme WRITE setDarkTheme NOTIFY darkThemeChanged)
 	Q_PROPERTY(int themeMode READ themeMode WRITE setThemeMode NOTIFY themeModeChanged)
 
 public:
+	enum LanguageMode
+	{
+		LanguageAuto = 0,
+		LanguageZh	  = 1,
+		LanguageEn	  = 2,
+	};
+
 	explicit AppConfig(ClickerController *clicker, QObject *parent = nullptr);
 
 	QString language() const;
-	int		languageIndex() const;
+	int		languageMode() const;
 	double	uiScale() const;
 	int		uiScaleIndex() const;
 	bool	darkTheme() const;
 	int		themeMode() const;
 
 	void setLanguage(const QString &value);
-	void setLanguageIndex(int value);
+	void setLanguageMode(int value);
 	void setUiScale(double value);
 	void setUiScaleIndex(int value);
 	void setDarkTheme(bool value);
@@ -46,7 +53,7 @@ public:
 
 signals:
 	void languageChanged();
-	void languageIndexChanged();
+	void languageModeChanged();
 	void uiScaleChanged();
 	void uiScaleIndexChanged();
 	void darkThemeChanged();
@@ -65,10 +72,12 @@ private:
 
 	/** 根据主题模式刷新实际生效的深浅色。 */
 	void refreshEffectiveDarkTheme();
+	/** 根据语言模式刷新实际生效的界面语言。 */
+	void refreshEffectiveLanguage();
 
 	ClickerController *clicker;
 	QString			   configPath;
-	int				   languageIndexValue;
+	int				   languageModeValue;
 	int				   uiScaleIndexValue;
 	int				   themeModeValue;
 	bool			   effectiveDarkThemeValue;

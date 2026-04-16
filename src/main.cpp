@@ -6,6 +6,10 @@
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QCoreApplication>
+#include <QFile>
+#include <QLockFile>
+#include <QDir>
+#include <QFileInfo>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QStringList>
@@ -71,6 +75,41 @@ namespace
 	{
 		QFontDatabase::addApplicationFont(resourcePath);
 	}
+
+	QString applicationConfigDirectory()
+	{
+		const QDir applicationDir(QCoreApplication::applicationDirPath());
+		const bool isVelopackCurrent = QFileInfo(applicationDir.absolutePath()).fileName().compare(QStringLiteral("current"), Qt::CaseInsensitive) == 0
+			&& QFile::exists(applicationDir.filePath(QStringLiteral("sq.version"))) && QFile::exists(applicationDir.filePath(QStringLiteral("../Update.exe")));
+
+		if (isVelopackCurrent)
+		{
+			QDir installRoot(applicationDir);
+			installRoot.cdUp();
+			return installRoot.filePath(QStringLiteral("config"));
+		}
+
+		return applicationDir.filePath(QStringLiteral("config"));
+	}
+
+	QString singleInstanceLockPath()
+	{
+		return QDir(applicationConfigDirectory()).filePath(QStringLiteral("FSClicker.lock"));
+	}
+
+	bool acquireSingleInstanceLock()
+	{
+		QDir configDirectory(applicationConfigDirectory());
+		configDirectory.mkpath(QStringLiteral("."));
+
+		static auto *persistentLock = new QLockFile(singleInstanceLockPath());
+		if (!persistentLock->tryLock(0))
+		{
+			return false;
+		}
+
+		return true;
+	}
 } // namespace
 
 int main(int argc, char *argv[])
@@ -84,6 +123,10 @@ int main(int argc, char *argv[])
 	disableDiskCaches();
 
 	const QGuiApplication app(argc, argv);
+	if (!acquireSingleInstanceLock())
+	{
+		return 0;
+	}
 	QGuiApplication::setApplicationName(QStringLiteral(FS_CLICKER_APP_NAME));
 	QGuiApplication::setApplicationVersion(QStringLiteral(FS_CLICKER_APP_VERSION));
 

@@ -1,49 +1,38 @@
-<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#000000" flood-opacity="0.14"/>
-        </filter>
-    </defs>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+    <!-- 涟漪：严格同心 -->
+    <circle cx="512" cy="512" r="244.000" fill="none" stroke="#61AFEF" stroke-width="48.800" opacity="0.30"/>
+    <circle cx="512" cy="512" r="326.960" fill="none" stroke="#61AFEF" stroke-width="39.040" opacity="0.22"/>
+    <circle cx="512" cy="512" r="400.160" fill="none" stroke="#61AFEF" stroke-width="29.280" opacity="0.15"/>
+    <circle cx="512" cy="512" r="463.600" fill="none" stroke="#61AFEF" stroke-width="19.520" opacity="0.10"/>
 
-    <!-- 透明圆角矩形背景 -->
-    <rect x="16" y="16" width="224" height="224" rx="52" fill="transparent"/>
-
-    <!-- 涟漪 -->
-    <circle cx="128" cy="128" r="50" fill="none" stroke="#61AFEF" stroke-width="10" opacity="0.30"/>
-    <circle cx="128" cy="128" r="67" fill="none" stroke="#61AFEF" stroke-width="8"  opacity="0.22"/>
-    <circle cx="128" cy="128" r="82" fill="none" stroke="#61AFEF" stroke-width="6"  opacity="0.15"/>
-    <circle cx="128" cy="128" r="95" fill="none" stroke="#61AFEF" stroke-width="4"  opacity="0.10"/>
-
-    <g filter="url(#softGlow)">
-        <!-- 外描边，位于花瓣下层 -->
-        <g stroke="#F2B8B8" stroke-width="1.2" fill="none" opacity="0.96">
-            <circle cx="128" cy="94" r="27"/>
-            <circle cx="160.34" cy="117.50" r="27"/>
-            <circle cx="147.98" cy="155.50" r="27"/>
-            <circle cx="108.02" cy="155.50" r="27"/>
-            <circle cx="95.66" cy="117.50" r="27"/>
-        </g>
-
-        <!-- 花瓣主体 -->
-        <g fill="#DCA5A5">
-            <circle cx="128" cy="94" r="24"/>
-            <circle cx="160.34" cy="117.50" r="24"/>
-            <circle cx="147.98" cy="155.50" r="24"/>
-            <circle cx="108.02" cy="155.50" r="24"/>
-            <circle cx="95.66" cy="117.50" r="24"/>
-            <circle cx="128" cy="128" r="24"/>
-        </g>
-
-        <!-- 中间小花 -->
-        <g fill="#F6DDD6" opacity="0.55">
-            <circle cx="128" cy="116" r="11.5"/>
-            <circle cx="138.46" cy="123.60" r="11.5"/>
-            <circle cx="134.46" cy="135.90" r="11.5"/>
-            <circle cx="121.54" cy="135.90" r="11.5"/>
-            <circle cx="117.54" cy="123.60" r="11.5"/>
-        </g>
-
-        <!-- 中央高光点 -->
-        <circle cx="128" cy="128" r="6.6" fill="#F3E7E2" opacity="0.95"/>
+    <!-- 最外层五环：严格正五边形分布 -->
+    <g stroke="#F2B8B8" stroke-width="5.856" fill="none" opacity="0.96">
+        <circle cx="512.000" cy="346.080" r="131.760"/>
+        <circle cx="669.799" cy="460.728" r="131.760"/>
+        <circle cx="609.525" cy="646.232" r="131.760"/>
+        <circle cx="414.475" cy="646.232" r="131.760"/>
+        <circle cx="354.201" cy="460.728" r="131.760"/>
     </g>
+
+    <!-- 花瓣主体：严格正五边形分布 -->
+    <g fill="#DCA5A5">
+        <circle cx="512.000" cy="346.080" r="117.120"/>
+        <circle cx="669.799" cy="460.728" r="117.120"/>
+        <circle cx="609.525" cy="646.232" r="117.120"/>
+        <circle cx="414.475" cy="646.232" r="117.120"/>
+        <circle cx="354.201" cy="460.728" r="117.120"/>
+        <circle cx="512.000" cy="512.000" r="117.120"/>
+    </g>
+
+    <!-- 花蕊：严格正五边形分布 -->
+    <g fill="#F6DDD6" opacity="0.55">
+        <circle cx="512.000" cy="458.320" r="56.120"/>
+        <circle cx="563.053" cy="495.412" r="56.120"/>
+        <circle cx="543.552" cy="555.428" r="56.120"/>
+        <circle cx="480.448" cy="555.428" r="56.120"/>
+        <circle cx="460.947" cy="495.412" r="56.120"/>
+    </g>
+
+    <!-- 中央高光点：严格位于中心 -->
+    <circle cx="512.000" cy="512.000" r="32.208" fill="#F3E7E2" opacity="0.95"/>
 </svg>

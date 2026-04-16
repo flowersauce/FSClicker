@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QGuiApplication>
+#include <QLocale>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
@@ -20,16 +21,48 @@
 
 namespace
 {
-	/** 将语言索引转成 QML 使用的语言标识。 */
-	QString languageFromIndex(int value)
+	bool systemPrefersChineseUiLanguage()
 	{
-		return std::clamp(value, 0, 1) == 1 ? QStringLiteral("en") : QStringLiteral("zh");
+		const QStringList uiLanguages = QLocale::system().uiLanguages();
+		for (const QString &uiLanguage : uiLanguages)
+		{
+			const QLocale locale(uiLanguage);
+			if (locale.language() == QLocale::Chinese)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
-	/** 将语言标识转成配置索引。 */
-	int indexFromLanguage(const QString &value)
+	/** 将语言模式转成 QML 使用的语言标识。 */
+	QString languageFromMode(int value)
 	{
-		return value == QStringLiteral("en") ? 1 : 0;
+		switch (std::clamp(value, 0, 2))
+		{
+			case 1:
+				return QStringLiteral("zh");
+			case 2:
+				return QStringLiteral("en");
+			case 0:
+			default:
+				return systemPrefersChineseUiLanguage() ? QStringLiteral("zh") : QStringLiteral("en");
+		}
+	}
+
+	/** 将语言标识转成配置模式。 */
+	int modeFromLanguage(const QString &value)
+	{
+		if (value == QStringLiteral("zh"))
+		{
+			return AppConfig::LanguageZh;
+		}
+		if (value == QStringLiteral("en"))
+		{
+			return AppConfig::LanguageEn;
+		}
+		return AppConfig::LanguageAuto;
 	}
 
 	/** 将缩放索引转成实际缩放倍率。 */
@@ -59,6 +92,19 @@ namespace
 			return 1;
 		}
 		return 0;
+	}
+
+	/** 读取旧版语言索引并迁移到语言模式。 */
+	int migrateLanguageModeFromLegacyIndex(int legacyValue)
+	{
+		switch (std::clamp(legacyValue, 0, 1))
+		{
+			case 1:
+				return AppConfig::LanguageEn;
+			case 0:
+			default:
+				return AppConfig::LanguageZh;
+		}
 	}
 
 	/** 读取系统当前的深浅色偏好。 */
@@ -149,7 +195,7 @@ AppConfig::AppConfig(ClickerController *clicker, QObject *parent)
 	: QObject(parent)
 	, clicker(clicker)
 	, configPath(resolveConfigPath())
-	, languageIndexValue(0)
+	, languageModeValue(0)
 	, uiScaleIndexValue(0)
 	, themeModeValue(ThemeAuto)
 	, effectiveDarkThemeValue(systemPrefersDarkTheme())
@@ -168,12 +214,12 @@ AppConfig::AppConfig(ClickerController *clicker, QObject *parent)
 
 QString AppConfig::language() const
 {
-	return languageFromIndex(languageIndexValue);
+	return languageFromMode(languageModeValue);
 }
 
-int AppConfig::languageIndex() const
+int AppConfig::languageMode() const
 {
-	return languageIndexValue;
+	return languageModeValue;
 }
 
 double AppConfig::uiScale() const
@@ -198,19 +244,19 @@ int AppConfig::themeMode() const
 
 void AppConfig::setLanguage(const QString &value)
 {
-	setLanguageIndex(indexFromLanguage(value));
+	setLanguageMode(modeFromLanguage(value));
 }
 
-void AppConfig::setLanguageIndex(int value)
+void AppConfig::setLanguageMode(int value)
 {
-	const int normalized = std::clamp(value, 0, 1);
-	if (languageIndexValue == normalized)
+	const int normalized = std::clamp(value, 0, 2);
+	if (languageModeValue == normalized)
 	{
 		return;
 	}
 
-	languageIndexValue = normalized;
-	emit languageIndexChanged();
+	languageModeValue = normalized;
+	emit languageModeChanged();
 	emit languageChanged();
 }
 
@@ -258,7 +304,8 @@ QString AppConfig::filePath() const
 bool AppConfig::save()
 {
 	QJsonObject settings{
-		{QStringLiteral("languageIndex"), languageIndexValue},
+		{QStringLiteral("languageMode"), languageModeValue},
+		{QStringLiteral("languageIndex"), languageModeValue == LanguageAuto ? 0 : languageModeValue - 1},
 		{QStringLiteral("uiScaleIndex"), uiScaleIndexValue},
 		{QStringLiteral("themeMode"), themeModeValue},
 	};
@@ -316,10 +363,12 @@ void AppConfig::load()
 	}
 
 	const QJsonObject settings			  = settingsValue.toObject();
-	int				  storedLanguageIndex = 0;
-	int				  storedUiScaleIndex  = 0;
+	int				  storedLanguageMode   = 0;
+	int				  storedLanguageIndex  = 0;
+	int				  storedUiScaleIndex	  = 0;
 	int				  storedThemeMode	  = 0;
-	if (!readInteger(settings, QStringLiteral("languageIndex"), &storedLanguageIndex)
+	const bool hasLanguageMode = readInteger(settings, QStringLiteral("languageMode"), &storedLanguageMode);
+	if ((!hasLanguageMode && !readInteger(settings, QStringLiteral("languageIndex"), &storedLanguageIndex))
 		|| !readInteger(settings, QStringLiteral("uiScaleIndex"), &storedUiScaleIndex) || !readInteger(settings, QStringLiteral("themeMode"), &storedThemeMode))
 	{
 		file.close();
@@ -327,7 +376,7 @@ void AppConfig::load()
 		return;
 	}
 
-	setLanguageIndex(storedLanguageIndex);
+	setLanguageMode(hasLanguageMode ? std::clamp(storedLanguageMode, 0, 2) : migrateLanguageModeFromLegacyIndex(storedLanguageIndex));
 	setUiScaleIndex(storedUiScaleIndex);
 	setThemeMode(storedThemeMode);
 
@@ -364,4 +413,9 @@ void AppConfig::refreshEffectiveDarkTheme()
 	{
 		emit darkThemeChanged();
 	}
+}
+
+void AppConfig::refreshEffectiveLanguage()
+{
+	emit languageChanged();
 }

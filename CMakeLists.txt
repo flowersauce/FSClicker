@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.30)
 
 set(FS_CLICKER_TARGET_NAME FSClicker)
 set(FS_CLICKER_DISPLAY_NAME "FSClicker")
-set(FS_CLICKER_VERSION 1.3.0)
+set(FS_CLICKER_VERSION 1.3.1)
 set(FS_CLICKER_AUTHOR_NAME "Flowersauce")
 set(FS_CLICKER_REPOSITORY_URL "https://github.com/flowersauce/FSClicker")
 

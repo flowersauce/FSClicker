@@ -322,10 +322,13 @@ ApplicationWindow {
                     ConfigRow {
                         y: 92; label: root.trText("界面语言", "Language"); rowEnabled: !clicker.running
                         SegmentButton {
-                            x: 80; y: 0; width: 120; height: 32; text: "简体中文"; selected: appConfig.languageIndex === 0; onClicked: appConfig.languageIndex = 0
+                            x: 80; y: 0; width: 80; height: 32; text: root.trText("自动", "Auto"); selected: appConfig.languageMode === 0; onClicked: appConfig.languageMode = 0
                         }
                         SegmentButton {
-                            x: 200; y: 0; width: 120; height: 32; text: "English"; rightRounded: true; selected: appConfig.languageIndex === 1; onClicked: appConfig.languageIndex = 1
+                            x: 160; y: 0; width: 80; height: 32; text: "简体中文"; selected: appConfig.languageMode === 1; onClicked: appConfig.languageMode = 1
+                        }
+                        SegmentButton {
+                            x: 240; y: 0; width: 80; height: 32; text: "English"; rightRounded: true; selected: appConfig.languageMode === 2; onClicked: appConfig.languageMode = 2
                         }
                     }
 
