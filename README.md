@@ -31,7 +31,16 @@
 
 ## 下载
 
-在 GitHub Release 下载最新的 Windows 发布包，解压后运行 `FSClicker.exe`。
+已上架 Windows Package Manager，可通过 winget 安装：
+
+```powershell
+winget install Flowersauce.FSClicker
+```
+
+也可以在 GitHub Releases 下载最新的 Windows 发布包：
+
+- 安装版：下载 `FSClicker-v<version>-windows-x64-setup.exe`，运行后会自动安装并显示安装进度。
+- 便携版：下载 `FSClicker-v<version>-windows-x64-portable.zip`，解压后运行 `FSClicker.exe`。
 
 ## 构建
 
