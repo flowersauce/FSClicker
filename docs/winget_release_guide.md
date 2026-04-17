@@ -81,26 +81,30 @@ FSClicker-v1.3.1-windows-x64-portable.zip.sha256
 
 ## 准备 Manifest
 
-推荐复制上一版 manifest 后修改版本号、URL 和 hash。
-
-目录结构：
+推荐直接用脚本从 `output/release` 生成 manifest。生成结果会写到：
 
 ```text
-manifests/f/Flowersauce/FSClicker/<version>/
+output/winget-manifests/manifests/f/Flowersauce/FSClicker/<version>/
 ```
 
 例如：
 
 ```text
-manifests/f/Flowersauce/FSClicker/1.3.1/
+output/winget-manifests/manifests/f/Flowersauce/FSClicker/1.3.1/
 ```
 
-目录内包含三份 YAML：
+生成的目录内包含三份 YAML：
 
 ```text
 Flowersauce.FSClicker.yaml
 Flowersauce.FSClicker.installer.yaml
 Flowersauce.FSClicker.locale.en-US.yaml
+```
+
+生成脚本：
+
+```powershell
+python scripts/generate_winget_manifest.py
 ```
 
 ### Version Manifest
